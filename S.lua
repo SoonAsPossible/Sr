@@ -8,9 +8,6 @@ return function(Information: {
 		game.Loaded:Wait()
 	end
 
-	print("✅ Game loaded, waiting 4 seconds")
-	task.wait(4)
-
 	-- Services
 	local TeleportService = game:GetService("TeleportService")
 	local Players = game:GetService("Players")
@@ -23,7 +20,7 @@ return function(Information: {
 	--> Settings
 	local WebhookUrl = Information.WebhookUrl
     local Settings = {
-		Eggs = { "Any", "rainbow-egg", "void-egg", "nightmare-egg", "event-1", "event-2", "event-3", "man-egg" }, -- Add "Any" if you don't want specific eggs
+		Eggs = { "rainbow-egg", "void-egg", "nightmare-egg", "event-1", "event-2", "event-3", "man-egg" }, -- Add "Any" if you don't want specific eggs
 		Chests = { "royal-chest" }, -- Add "Any" if you don't want specific chests
 		IgnoreMultiplier = { "man-egg", "event-3" }, -- Only use this on rare EGGS
 		Ping = { "man-egg", "royal-chest", "event-3" }, -- Will ping if this gets found (Chests & Eggs)

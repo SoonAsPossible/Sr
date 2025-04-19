@@ -1,13 +1,13 @@
 return function(Information: {
+	Proxies: { string },
 	WebhookUrl: string,
 })
-
 	if not game:IsLoaded() then
 		print("⏰ Waiting for the game to load")
 		game.Loaded:Wait()
 	end
 
-    task.wait(2)
+	task.wait(2)
 
 	-- Services
 	local TeleportService = game:GetService("TeleportService")
@@ -20,7 +20,7 @@ return function(Information: {
 	-- Variables
 	--> Settings
 	local WebhookUrl = Information.WebhookUrl
-    local Settings = {
+	local Settings = {
 		Eggs = { "rainbow-egg", "void-egg", "nightmare-egg", "event-1", "event-2", "event-3", "man-egg" }, -- Add "Any" if you don't want specific eggs
 		Chests = { "royal-chest" }, -- Add "Any" if you don't want specific chests
 		IgnoreMultiplier = { "man-egg", "event-3" }, -- Only use this on rare EGGS
@@ -35,6 +35,8 @@ return function(Information: {
 			Chests = {},
 			IncludePing = false,
 		}, -- Do NOT change.
+
+		Proxies = Information.Proxies,
 	}
 
 	--> Game
@@ -165,9 +167,87 @@ return function(Information: {
 		)
 	end
 
-    local ServerHop = function() 
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/78n/Amity/main/AutoServerHop.lua"))()
-    end
+	local ServerList
+	local GetRobloxServers = function(): { data: {} | nil }
+		local List = {}
+
+		if ServerList then
+			return { data = ServerList }
+		end
+
+		for _, Proxy in next, Settings.Proxies do
+			print(`📑 Getting result from {Proxy}`)
+			local Result = Get(Proxy)
+			local Decoded = Decode(Result)
+
+			if Decoded then
+				ServerList = Decoded.data
+				List.data = Decoded.data
+				break
+			end
+		end
+
+		return List
+	end
+
+	local Retries = 0 -- Retries incase proxy/proxies didn't return anything (ratelimit)
+	local ServerHop, SortServers =
+		nil, function(Servers: {}, PlayerCount: number)
+			local Chosen = {}
+			local Shuffled = table.clone(Servers)
+
+			for Index = #Shuffled, 2, -1 do
+				local Random = math.random(1, Index)
+				Shuffled[Index], Shuffled[Random] = Shuffled[Random], Shuffled[Index]
+			end
+
+			for _, Server in next, Shuffled do
+				local Playing = Server.playing
+
+				if Playing >= PlayerCount then
+					Insert(Chosen, Server)
+				end
+			end
+
+			return Chosen
+		end
+
+	ServerHop = function()
+		local ServerList, Data
+		if Retries > 0 and Retries < 4 then
+			task.wait(3 ^ Retries)
+		end
+
+		ServerList = GetRobloxServers()
+		Data = ServerList.data
+		Retries += 1
+
+		if Data then
+			local Chosen = SortServers(Data, 2)
+
+			if #Chosen < 30 then
+				warn(
+					"⚠️ Could NOT find at least 30 servers with more than 2 players (Ascending), instead going for 1 player servers."
+				)
+				Chosen = SortServers(Data, 1)
+			end
+
+			if #Chosen > 0 then
+				local Server = Chosen[math.random(1, #Chosen)]
+
+				if Server then
+					print(`🚀 Teleporting to another server - {Server.id}, ({Server.playing}/{Players.MaxPlayers})`)
+					TeleportService:TeleportToPlaceInstance(PlaceId, Server.id)
+				end
+			end
+		elseif Retries > 2 then
+			TeleportService:Teleport(PlaceId, Players.LocalPlayer, {
+				ShouldntLog = true,
+			}) -- Rejoin server
+		else
+			ServerHop() -- Retry
+		end
+	end
 
 	--> Checks / Setup
 	local CheckTarget = function(Target: any)

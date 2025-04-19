@@ -8,6 +8,8 @@ return function(Information: {
 		game.Loaded:Wait()
 	end
 
+	task.wait(2)
+
 	-- Services
 	local TeleportService = game:GetService("TeleportService")
 	local Players = game:GetService("Players")

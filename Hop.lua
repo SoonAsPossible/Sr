@@ -1,21 +1,21 @@
--- Services
-local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
-local StarterGui = game:GetService("StarterGui")
-
--- Variables
---> Game
-local PlaceId = game.PlaceId
-
---> File
-local Folder = "ADV-ServerHop"
-local Place = Folder .. `/{PlaceId}`
-local Code = Place .. "/Script.txt"
-local Joined = Place .. "/JoinedServers.json"
-local ServerList = Place .. "/ServerList.json"
-local LastUpdated = Place .. "/LastUpdated.txt"
-
 return function(Proxies: { [number]: string }, Code: string | nil)
+	-- Services
+	local TeleportService = game:GetService("TeleportService")
+	local HttpService = game:GetService("HttpService")
+	local StarterGui = game:GetService("StarterGui")
+
+	-- Variables
+	--> Game
+	local PlaceId = game.PlaceId
+
+	--> File
+	local Folder = "ADV-ServerHop"
+	local Place = Folder .. `/{PlaceId}`
+	local Script = Place .. "/Script.txt"
+	local Joined = Place .. "/JoinedServers.json"
+	local ServerList = Place .. "/ServerList.json"
+	local LastUpdated = Place .. "/LastUpdated.txt"
+
 	-- Functions
 	--> JSON
 	local Decode = function(Json)
@@ -166,6 +166,6 @@ return function(Proxies: { [number]: string }, Code: string | nil)
 		print("✅ Serverlist up to date, time left:", LastUpdated - tick())
 	end
 
-	loadstring(readfile(Code))()
+	loadstring(readfile(Script))()
 	TeleportToServer()
 end

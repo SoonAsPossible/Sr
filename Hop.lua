@@ -166,6 +166,7 @@ return function(Proxies: { [number]: string }, Code: string | nil)
 		print("✅ Serverlist up to date, time left:", LastUpdated - tick())
 	end
 
+	print("Reading -", Script)
 	loadstring(readfile(Script))()
 	TeleportToServer()
 end
